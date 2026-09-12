@@ -18,6 +18,10 @@ public class SumWithThreads{
             threads[i] = new Thread(new SumThread(start,end));
             threads[i].start();
         }
+        /*
+        * Without this code your main will not wait for other threads to finish
+        * It will simply finish and whatso ever thread would have completed, it would have return that answer
+         */
         for(Thread thread : threads){
             thread.join();
         }
