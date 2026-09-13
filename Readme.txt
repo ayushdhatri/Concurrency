@@ -71,3 +71,60 @@ Look how each thread is getting chance one after other
 
 
 
+############################# What was the need of reentrant lock ######################
+Without Reentrant Lock: 
+public class BankAccount {
+    private double balance = 100.0;
+    private final ReentrantLock lock = new ReentrantLock();
+
+    // Method 1: Needs to be thread-safe for standalone calls
+    public void debit(double amount) {
+        lock.lock();
+        try {
+            balance -= amount;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    // Method 2: Also needs to be thread-safe
+    public void transferWithFee(double amount, double fee) {
+        lock.lock(); // Holds the lock (holdCount = 1)
+        try {
+            // Reuses debit() logic to apply fee and transfer amount
+            debit(amount); // Calls debit() -> requests lock again!
+            debit(fee);
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+
+Problem occure due to this:
+- A thread enters transferWithFee() and acquires the lock.
+
+- It then calls debit(amount).
+
+- debit() asks: "Is the lock free?"
+
+- The system sees the lock is busy (held by the thread itself).
+
+- The thread is put to sleep, waiting for the lock to be released.
+
+- The thread is now waiting for itself to release the lock before it can proceed to release it.
+
+- Result: Instant, unrecoverable deadlock.
+
+After Reentrant Lock:
+
+- transferWithFee() acquires the lock $\to$ holdCount = 1, owner = Thread-A.
+
+- It calls debit(amount).
+
+- The lock checks: "Who holds me?" $\to$ Thread-A.
+
+- Since the caller is already the owner, it grants immediate access $\to$ holdCount = 2
+
+- debit() exits and calls unlock() $\to$ holdCount = 1 (lock remains held).
+
+- transferWithFee() finishes and calls unlock() $\to$ holdCount = 0 (lock is fully released to other threads).
