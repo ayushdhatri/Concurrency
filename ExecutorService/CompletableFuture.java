@@ -2,6 +2,7 @@ package ExecutorService;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -20,9 +21,24 @@ public class CompletableFuture {
         Runnable task = ()->{
             System.out.println("Hello");
         };
-        scheduledExecutorService.schedule(task , 3000  , TimeUnit.MILLISECONDS);
-        scheduledExecutorService.shutdown();
+        // scheduledExecutorService.schedule(task , 3000  , TimeUnit.MILLISECONDS);
+        
 
+       
+        Future<?> futureObj =  scheduledExecutorService.scheduleAtFixedRate(task, 3000, 4000, TimeUnit.MILLISECONDS);
+
+
+        try{
+            
+            Thread.sleep(5000);
+            
+            futureObj.cancel(true);
+
+        }
+        catch(Exception ex){
+
+        }
+        scheduledExecutorService.shutdown();
 
 
     }
