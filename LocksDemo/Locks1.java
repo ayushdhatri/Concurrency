@@ -1,11 +1,14 @@
 package LocksDemo;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 class Inventory{
     private int availableRooms;
     private final Lock lock = new ReentrantLock();
+    ExecutorService
 
     public Inventory(int availableRooms){
         this.availableRooms = availableRooms;
